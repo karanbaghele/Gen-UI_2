@@ -4,7 +4,7 @@
 Build the whole product from PRODUCT_BRIEF.md autonomously. Keep everything under our control local. No deployment, public tunnel, hosted database substitution, messages to others, or usage-reset credit redemption. Missing credentials should block only dependent verification.
 
 ## Scheduling
-Heartbeat automation id: `continue-building-genui`. It is active in this thread and is currently scheduled for 2026-09-17 14:53 Asia/Kolkata, just after the reported five-hour reset at 14:50:52. Before exhausting each window, inspect usage, save this checkpoint, and update the same heartbeat after the next reset. Do not create duplicates. Pause it when the work is finished.
+Heartbeat automation id: `continue-building-genui`. It is active in this thread and scheduled at 10:17 Asia/Kolkata, just after the next reported reset at 10:15:02 on 2026-09-23. The five-hour allowance was at 1% used when work resumed at 05:14. Before exhausting each window, inspect usage, save this checkpoint, and update the same heartbeat after the next reset. Do not create duplicates. Pause it when the work is finished.
 
 ## Starting state
 This workspace was empty. Node 24.7.0 / npm 11.5.1 are available. Colima and the Docker CLI are now installed for local containers; the project-local Supabase CLI is available. Ollama and psql are not on PATH. No project credentials were provided. Adjacent GEN UI is a separate project; do not modify it.
@@ -27,4 +27,6 @@ On 2026-09-21 the PostgreSQL connector was verified against a separate `source_d
 2. Sign in to NVIDIA Build, obtain an API Catalog key, and store it only in `.env.local`. Set `AI_PROVIDER=nvidia` and `EMBEDDING_PROVIDER=nvidia`, run the local worker to index a dataset, then verify a real NVIDIA chat and RAG run. The NVIDIA adapter and variable-dimension vector migration are implemented; typecheck and lint pass, but NVIDIA has not been called with a real key.
 3. Live source updates and acceptance/end-to-end testing are deferred at the user's request. Keep them unchecked rather than presenting demo checks as integration verification.
 
-The source was pushed to the private GitHub repository `karanbaghele/Gen-UI_2` on 2026-09-23. Git network transfers corrupted large packs, so GitHub's authenticated file API was used. The remote tree was fetched and confirmed identical to the local initial checkout. The current working changes need a follow-up commit and push.
+The source was pushed to the private GitHub repository `karanbaghele/Gen-UI_2` on 2026-09-23. Git network transfers corrupted the initial large pack, so GitHub's authenticated file API published the initial tree. The local tree matched the fetched remote. The follow-up implementation commit `0f09496` pushed normally; the working tree was clean afterward. On 2026-09-23, the app and local Auth health endpoints returned HTTP 200. The browser showed the local test session, and a database check found no Google user yet, so real Google login remains unverified.
+
+The in-app browser currently shows the local test session after returning to GenUI. Session lookup now checks a valid Google identity before the opt-in local fixture so a real sign-in is not hidden by the fixture cookie; typecheck and lint pass. This change is not yet pushed. The NVIDIA browser is at the account login step; no key has been created or added.

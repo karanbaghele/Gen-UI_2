@@ -89,22 +89,23 @@ async function localTestUser(request?: Request) {
 export async function getSession(
   request?: Request,
 ): Promise<SessionContext | null> {
-  let userId = await localTestUser(request);
-  if (!userId) {
-    if (!configuration().supabase) return null;
+  let userId: string | null = null;
+  if (configuration().supabase) {
     const client = await supabaseServer();
     const {
       data: { user },
       error,
     } = await client.auth.getUser();
-    if (error || !user) return null;
     if (
-      user.app_metadata.provider !== "google" ||
-      !user.identities?.some((identity) => identity.provider === "google")
+      !error &&
+      user &&
+      user.app_metadata.provider === "google" &&
+      user.identities?.some((identity) => identity.provider === "google")
     )
-      return null;
-    userId = user.id;
+      userId = user.id;
   }
+  userId ??= await localTestUser(request);
+  if (!userId) return null;
   return withUser(userId, async (sql) => {
     const [row] =
       await sql`select p.id,p.email,p.name,p.avatar_url,w.id as workspace_id,w.name as workspace_name,m.role
