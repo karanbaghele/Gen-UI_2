@@ -60,7 +60,7 @@ export default function HomePage() {
   const selected = datasetId || (datasets.length === 1 ? datasets[0].id : "");
   const config = session.data?.config;
   const effectiveMode =
-    mode || (config?.ollama ? "ollama" : config?.gemini ? "gemini" : "demo");
+    mode || (config?.nvidia ? "nvidia" : config?.ollama ? "ollama" : config?.gemini ? "gemini" : "demo");
   const generate = async () => {
     if (!prompt.trim() || !selected || busy) return;
     setBusy(true);
@@ -186,6 +186,7 @@ export default function HomePage() {
           <option value="demo">Demo · deterministic sample planner</option>
           {config?.ollama && <option value="ollama">AI · Local Ollama</option>}
           {config?.gemini && <option value="gemini">AI · Gemini</option>}
+          {config?.nvidia && <option value="nvidia">AI · NVIDIA</option>}
         </select>
         <span className="composer-help" style={{ margin: 0 }}>
           Enter to generate · Shift + Enter for a new line
@@ -194,7 +195,7 @@ export default function HomePage() {
       {effectiveMode === "demo" && (
         <p style={{ fontSize: 10, marginTop: 8 }}>
           Demo mode uses a limited built-in planner and real calculations.
-          Configure Ollama or Gemini for AI generation.
+          Configure NVIDIA, Ollama, or Gemini for AI generation.
         </p>
       )}
       <ErrorNote message={error || data.error?.message} />

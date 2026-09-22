@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "worker": "node --conditions=react-server --import tsx scripts/worker.ts",
+    "auth:proxy": "node --import tsx scripts/local-auth-proxy.ts",
     "db:start": "supabase start",
     "db:reset": "supabase db reset"
   },

@@ -27,6 +27,7 @@ export function configuration() {
     ),
     ollama: !!process.env.OLLAMA_BASE_URL,
     gemini: !!process.env.GEMINI_API_KEY,
+    nvidia: !!process.env.NVIDIA_API_KEY,
     devAuth:
       process.env.NODE_ENV !== "production" &&
       process.env.GENUI_TEST_AUTH === "true",

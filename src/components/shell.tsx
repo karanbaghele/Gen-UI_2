@@ -35,6 +35,7 @@ export type Session = {
     sheets: boolean;
     ollama: boolean;
     gemini: boolean;
+    nvidia: boolean;
     devAuth: boolean;
   };
 };
@@ -370,6 +371,7 @@ export function Shell({ children }: { children: ReactNode }) {
               ["Google Sheets", config.sheets],
               ["Local Ollama", config.ollama],
               ["Gemini", config.gemini],
+              ["NVIDIA", config.nvidia],
             ].map(([label, value]) => (
               <div className="status-cell" key={String(label)}>
                 <small>{label}</small>

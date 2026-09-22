@@ -4,7 +4,7 @@ import {
   AiError,
   embedTexts,
   embeddingModel,
-  EMBEDDING_DIMENSIONS,
+  embeddingDimensions,
 } from "./ai";
 import { withTenant } from "./db";
 import type { SessionContext } from "./auth";
@@ -192,7 +192,7 @@ export function metadataRetrieval(
 
 export function vectorLiteral(vector: number[]): string {
   if (
-    vector.length !== EMBEDDING_DIMENSIONS ||
+    vector.length !== embeddingDimensions() ||
     vector.some((n) => !Number.isFinite(n)) ||
     vector.every((n) => n === 0)
   )
@@ -241,6 +241,7 @@ export async function retrieveContext(
   const [vector] = await embedTexts(
     [`search_query: ${normalizeRequest(prompt)}`],
     signal,
+    "query",
   );
   const literal = vectorLiteral(vector);
   const candidates = await withTenant(
@@ -362,6 +363,7 @@ export async function indexDataset(
             .slice(offset, offset + 16)
             .map((c) => `search_document: ${c.content}`),
           signal,
+          "passage",
         )),
       );
     await withTenant(ctx.user.id, ctx.workspace.id, async (sql) => {

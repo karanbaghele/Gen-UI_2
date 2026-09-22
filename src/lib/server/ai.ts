@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export type AiMode = "demo" | "ollama" | "gemini";
+export type AiMode = "demo" | "ollama" | "gemini" | "nvidia";
 export type RealAiMode = Exclude<AiMode, "demo">;
 export type ModelMessage = {
   role: "system" | "user" | "assistant";
@@ -207,6 +207,23 @@ const geminiResponse = z.object({
     })
     .optional(),
 });
+const nvidiaResponse = z.object({
+  choices: z.array(z.object({
+    message: z.object({ content: z.string().max(1_000_000) }),
+    finish_reason: z.string().nullable().optional(),
+  })).min(1),
+  usage: z.object({
+    prompt_tokens: z.number().optional(),
+    completion_tokens: z.number().optional(),
+    total_tokens: z.number().optional(),
+  }).optional(),
+});
+
+function nvidiaKey(): string {
+  const key = process.env.NVIDIA_API_KEY;
+  if (!key) throw new AiError("NVIDIA needs a server-side NVIDIA_API_KEY.", "CONFIGURATION", 503);
+  return key;
+}
 
 export function createProvider(mode: RealAiMode): AiProvider {
   if (mode === "ollama") {
@@ -239,6 +256,44 @@ export function createProvider(mode: RealAiMode): AiProvider {
           usage: {
             inputTokens: result.data.prompt_eval_count,
             outputTokens: result.data.eval_count,
+          },
+        };
+      },
+    };
+  }
+  if (mode === "nvidia") {
+    const key = nvidiaKey();
+    const model = process.env.NVIDIA_CHAT_MODEL || "nvidia/nemotron-3.5-lightning-30b-a3b";
+    if (!/^[a-zA-Z0-9._/-]{1,120}$/.test(model))
+      throw new AiError("The NVIDIA model name is invalid.", "CONFIGURATION", 503);
+    return {
+      name: mode,
+      model,
+      async generate(request) {
+        const result = nvidiaResponse.safeParse(await postJson(
+          "https://integrate.api.nvidia.com/v1/chat/completions",
+          {
+            model,
+            messages: request.messages,
+            temperature: 0,
+            max_tokens: 8192,
+            stream: false,
+            chat_template_kwargs: { enable_thinking: false },
+          },
+          request.signal,
+          { Authorization: `Bearer ${key}`, Accept: "application/json" },
+        ));
+        if (!result.success)
+          throw new AiError("NVIDIA returned an unsupported response.", "INVALID_RESPONSE");
+        const choice = result.data.choices[0];
+        if (choice.finish_reason && choice.finish_reason !== "stop")
+          throw new AiError("NVIDIA did not complete its response. Try a simpler request.", "INCOMPLETE_RESPONSE");
+        return {
+          text: choice.message.content,
+          usage: {
+            inputTokens: result.data.usage?.prompt_tokens,
+            outputTokens: result.data.usage?.completion_tokens,
+            totalTokens: result.data.usage?.total_tokens,
           },
         };
       },
@@ -437,12 +492,24 @@ export async function structuredOutput<T>(args: {
 }
 
 export const EMBEDDING_DIMENSIONS = 768;
+export function embeddingDimensions(): number {
+  return embeddingProvider() === "nvidia" ? 2048 : EMBEDDING_DIMENSIONS;
+}
+export function embeddingProvider(): "ollama" | "nvidia" {
+  const configured = process.env.EMBEDDING_PROVIDER || (process.env.NVIDIA_API_KEY ? "nvidia" : "ollama");
+  if (configured !== "ollama" && configured !== "nvidia")
+    throw new AiError("The embedding provider is invalid.", "CONFIGURATION", 503);
+  return configured;
+}
 export function embeddingModel(): string {
-  return process.env.OLLAMA_EMBEDDING_MODEL || "nomic-embed-text";
+  return embeddingProvider() === "nvidia"
+    ? process.env.NVIDIA_EMBEDDING_MODEL || "nvidia/nemotron-3-embed-1b"
+    : process.env.OLLAMA_EMBEDDING_MODEL || "nomic-embed-text";
 }
 export async function embedTexts(
   texts: string[],
   signal?: AbortSignal,
+  inputType: "passage" | "query" = "passage",
 ): Promise<number[][]> {
   if (
     !texts.length ||
@@ -455,29 +522,40 @@ export async function embedTexts(
       422,
     );
   const model = embeddingModel();
-  const parsed = z
-    .object({
-      embeddings: z
-        .array(z.array(z.number().finite()).length(EMBEDDING_DIMENSIONS))
-        .length(texts.length),
-    })
-    .safeParse(
-      await postJson(
+  const nvidia = embeddingProvider() === "nvidia";
+  const input = nvidia
+    ? texts.map((text) => text.replace(/^search_(?:query|document):\s*/, ""))
+    : texts;
+  const response = nvidia
+    ? await postJson(
+        "https://integrate.api.nvidia.com/v1/embeddings",
+        { model, input, input_type: inputType, encoding_format: "float", truncate: "NONE" },
+        signal,
+        { Authorization: `Bearer ${nvidiaKey()}`, Accept: "application/json" },
+        120_000,
+      )
+    : await postJson(
         `${localOllamaUrl()}/api/embed`,
         { model, input: texts, truncate: false },
         signal,
         {},
         120_000,
-      ),
-    );
-  if (
-    !parsed.success ||
-    parsed.data.embeddings.some((v) => v.every((n) => n === 0))
-  )
+      );
+  const vectors = nvidia
+    ? z.object({ data: z.array(z.object({ index: z.number().int(), embedding: z.array(z.number().finite()) })) }).safeParse(response)
+    : z.object({ embeddings: z.array(z.array(z.number().finite())) }).safeParse(response);
+  const ordered = nvidia && vectors.success && "data" in vectors.data
+    ? [...vectors.data.data].sort((a, b) => a.index - b.index).map((entry) => entry.embedding)
+    : !nvidia && vectors.success && "embeddings" in vectors.data
+      ? vectors.data.embeddings
+      : null;
+  if (!ordered || ordered.length !== texts.length || ordered.some((v) =>
+    v.length !== embeddingDimensions() || v.every((n) => n === 0)
+  ))
     throw new AiError(
-      "The embedding model must return nonzero vectors with exactly 768 dimensions. No synthetic embeddings were substituted.",
+      `The embedding model must return nonzero vectors with exactly ${embeddingDimensions()} dimensions. No synthetic embeddings were substituted.`,
       "EMBEDDING_DIMENSIONS",
       422,
     );
-  return parsed.data.embeddings;
+  return ordered;
 }

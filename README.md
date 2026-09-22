@@ -21,7 +21,11 @@ Create a separate Google OAuth web client for Sheets with `http://127.0.0.1:3000
 
 ## Google sign-in
 
-Create local Google OAuth credentials with `http://127.0.0.1:54321/auth/v1/callback` as the callback. Set the Google client ID and secret in the local Supabase environment, restart the local stack, and set the same variables in `.env.local` so the UI can report configuration. Visit the app, choose **Continue with Google**, and confirm the callback creates a profile and personal workspace. This has not been verified in this checkout because no Google credentials were supplied.
+Use a Google OAuth web client with `http://127.0.0.1:54321/auth/v1/callback` as an authorized redirect URI. Set `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` and `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET` only in ignored local environment files. The app uses a local Supabase Auth service, keeps its PKCE session in HTTP-only cookies, and creates a personal workspace through the database trigger. When using the standalone local Auth container with the preserved database, run `npm run auth:proxy` alongside `npm run dev`; this proxy binds only to `127.0.0.1:54321`.
+
+## NVIDIA AI and RAG
+
+Set `NVIDIA_API_KEY` only in `.env.local`, then set `AI_PROVIDER=nvidia` and `EMBEDDING_PROVIDER=nvidia`. The default chat model is `nvidia/nemotron-3.5-lightning-30b-a3b`; the default embedding model is `nvidia/nemotron-3-embed-1b`. Generation sends selected authorized context to NVIDIA, validates its JSON locally, and runs analytical queries in deterministic code. The indexing worker sends source metadata and definitions to NVIDIA for 2048-dimensional passage embeddings. Retrieval embeds the request as a query and filters vector search by tenant, selected datasets, and embedding model. Reindex datasets after switching embedding providers. NVIDIA calls require a valid key and have not been verified with this account yet.
 
 ## Verification
 

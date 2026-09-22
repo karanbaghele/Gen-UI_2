@@ -152,7 +152,7 @@ function publicProvenance(retrieval: RetrievalResult) {
 
 function selectedMode(mode?: AiMode): AiMode {
   const value = mode ?? process.env.AI_PROVIDER ?? "ollama";
-  if (!["demo", "ollama", "gemini"].includes(value))
+  if (!["demo", "ollama", "gemini", "nvidia"].includes(value))
     throw new AiError("Choose a configured AI provider.", "CONFIGURATION", 503);
   // Demo cannot be selected implicitly through environment configuration.
   if (value === "demo" && mode !== "demo")

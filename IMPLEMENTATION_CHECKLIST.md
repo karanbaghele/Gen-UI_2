@@ -17,6 +17,9 @@ Authoritative requirements: [product brief](docs/PRODUCT_BRIEF.md). Local-only; 
 - [x] Google Sheets authorization, worksheet discovery, preview, import, and manual refresh.
 - [x] Google Sheets background polling and refresh-history verification.
 - [x] PostgreSQL connector verification against a separate read-only source.
+- [x] Initial source published to private GitHub repository Gen-UI_2, with ignored local credentials excluded.
+- [ ] Local Google Auth service, Google callback setting, and real account sign-in verification.
+- [ ] NVIDIA chat and passage/query embedding adapters; real generation and RAG verification after an API key is added.
 - [ ] Source refresh, local event notification, measured latency.
 - [ ] Exports, library actions, settings, context inspector.
 - [ ] Security tests, end-to-end editor tests, visual QA, lint/typecheck/build.
