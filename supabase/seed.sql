@@ -1,0 +1,2 @@
+-- No implicit test users or tenant data. Google signup triggers a personal workspace.
+-- Sample rows are generated deterministically and imported through authenticated APIs.
