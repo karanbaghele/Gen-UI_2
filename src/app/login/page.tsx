@@ -9,28 +9,18 @@ export default function LoginPage() {
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/auth/google", { redirect: "manual" });
-      if (
-        response.type === "opaqueredirect" ||
-        (response.status >= 300 && response.status < 400)
-      ) {
-        window.location.assign(
-          new URL("/api/auth/google", window.location.origin).href,
-        );
-        return;
-      }
+      const response = await fetch("/api/session", { cache: "no-store" });
       const data = await response.json();
       if (!response.ok)
         throw new Error(
           data.error?.message ??
-            data.error ??
-            "Google sign-in is not configured yet.",
+            "The local sign-in service is unavailable.",
         );
-      if (data.url) window.location.assign(data.url);
-      else
-        window.location.assign(
-          new URL("/api/auth/google", window.location.origin).href,
-        );
+      if (!data.config?.supabase || !data.config?.google)
+        throw new Error("Google sign-in is not configured yet.");
+      window.location.assign(
+        new URL("/api/auth/google", window.location.origin).href,
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unable to sign in.");
       setBusy(false);
