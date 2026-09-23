@@ -1,9 +1,10 @@
 import nextEnv from "@next/env";
 import type { SessionContext } from "../src/lib/server/auth";
 import { getDb } from "../src/lib/server/db";
-import { runDueJobs } from "../src/lib/server/jobs";
+import { runDueJobs, runIndexJobs } from "../src/lib/server/jobs";
 
 nextEnv.loadEnvConfig(process.cwd());
+const indexOnly = process.env.GENUI_WORKER_INDEX_ONLY === "true";
 
 let stopping = false;
 process.on("SIGINT", () => {
@@ -30,6 +31,7 @@ async function contexts(): Promise<SessionContext[]> {
     ) m on true
     join profiles p on p.id=m.user_id
     where j.status in ('queued','stale','processing')
+      and (${!indexOnly} or j.type = 'index_dataset')
       and (j.run_after<=now() or j.lease_until<now())
     order by j.workspace_id
   `;
@@ -53,7 +55,7 @@ async function main() {
   while (!stopping) {
     for (const context of await contexts()) {
       if (stopping) break;
-      const results = await runDueJobs(context, 3);
+      const results = await (indexOnly ? runIndexJobs : runDueJobs)(context, 3);
       for (const result of results)
         console.log(
           JSON.stringify({

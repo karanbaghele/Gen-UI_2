@@ -263,7 +263,7 @@ export function createProvider(mode: RealAiMode): AiProvider {
   }
   if (mode === "nvidia") {
     const key = nvidiaKey();
-    const model = process.env.NVIDIA_CHAT_MODEL || "nvidia/nemotron-3.5-lightning-30b-a3b";
+    const model = process.env.NVIDIA_CHAT_MODEL || "nvidia/nemotron-3-super-120b-a12b";
     if (!/^[a-zA-Z0-9._/-]{1,120}$/.test(model))
       throw new AiError("The NVIDIA model name is invalid.", "CONFIGURATION", 503);
     return {
@@ -274,7 +274,10 @@ export function createProvider(mode: RealAiMode): AiProvider {
           "https://integrate.api.nvidia.com/v1/chat/completions",
           {
             model,
-            messages: request.messages,
+            messages: [
+              { role: "system", content: `Return only a JSON value conforming to this JSON Schema. Do not use Markdown fences.\n${JSON.stringify(request.schema)}` },
+              ...request.messages,
+            ],
             temperature: 0,
             max_tokens: 8192,
             stream: false,

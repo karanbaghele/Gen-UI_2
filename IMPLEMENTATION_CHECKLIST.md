@@ -11,7 +11,7 @@ Authoritative requirements: [product brief](docs/PRODUCT_BRIEF.md). Local-only; 
 - [x] Versioned schema, component registry, deterministic queries and tests.
 - [x] Dashboard renderer, linked filters, accessible drag/resize editing.
 - [ ] Persistence, conflict detection, autosave, undo/redo, version restoration.
-- [ ] Embedding jobs, pgvector retrieval, definitions and provenance.
+- [x] Embedding jobs, pgvector retrieval, definitions and provenance (real NVIDIA, fictional sample).
 - [ ] Ollama/Gemini structured generation with bounded repair and real status events.
 - [x] Validated conversational patches preserving manual layouts.
 - [x] Google Sheets authorization, worksheet discovery, preview, import, and manual refresh.
@@ -19,7 +19,7 @@ Authoritative requirements: [product brief](docs/PRODUCT_BRIEF.md). Local-only; 
 - [x] PostgreSQL connector verification against a separate read-only source.
 - [x] Initial source published to private GitHub repository Gen-UI_2, with ignored local credentials excluded.
 - [ ] Local Google Auth service, Google callback setting, and real account sign-in verification.
-- [ ] NVIDIA chat and passage/query embedding adapters; real generation and RAG verification after an API key is added.
+- [x] NVIDIA chat and passage/query embedding adapters; real generation, RAG and saved refinement verified on the fictional sample.
 - [ ] Source refresh, local event notification, measured latency.
 - [ ] Exports, library actions, settings, context inspector.
 - [ ] Security tests, end-to-end editor tests, visual QA, lint/typecheck/build.

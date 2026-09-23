@@ -117,7 +117,7 @@ export async function runIndexJobs(
           ? error.message
           : combined.aborted
             ? "Indexing interrupted; the durable job can be retried."
-            : "Indexing failed. Check the local database and Ollama service.";
+            : "Indexing failed. Check the local database and configured embedding service.";
       const status = exhausted ? "failed" : "queued";
       await withTenant(ctx.user.id, ctx.workspace.id, async (sql) => {
         const owned =

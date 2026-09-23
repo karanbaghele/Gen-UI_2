@@ -4,7 +4,7 @@
 Build the whole product from PRODUCT_BRIEF.md autonomously. Keep everything under our control local. No deployment, public tunnel, hosted database substitution, messages to others, or usage-reset credit redemption. Missing credentials should block only dependent verification.
 
 ## Scheduling
-Heartbeat automation id: `continue-building-genui`. It is active in this thread and scheduled at 22:31 Asia/Kolkata. The last reported reset was 17:28:48 on 2026-09-23; the usage-limit tool was unavailable during the 17:39 continuation, so 22:31 is based on the five-hour window rather than a fresh reported reset. Inspect usage when the tool returns, save this checkpoint before exhaustion, and update this same heartbeat after the next reset. Do not create duplicates. Pause it when the work is finished.
+Heartbeat automation id: `continue-building-genui`. Continue at 06:27 Asia/Kolkata, just after the latest reported reset on 2026-09-24 at 06:25:33. Last usage check: five-hour window 56% used, weekly window 78% used. No reset credit consumed. Check fresh usage on resume and update this same automation before exhaustion.
 
 ## Starting state
 This workspace was empty. Node 24.7.0 / npm 11.5.1 are available. Colima and the Docker CLI are now installed for local containers; the project-local Supabase CLI is available. Ollama and psql are not on PATH. No project credentials were provided. Adjacent GEN UI is a separate project; do not modify it.
@@ -24,7 +24,7 @@ On 2026-09-21 the PostgreSQL connector was verified against a separate `source_d
 
 ## Next steps
 1. Verify the callback/session/logout with a real Google account. Local Auth, its loopback proxy, and the app are running as of 2026-09-23. The `GenUI Local Sheets` OAuth client now has the `http://127.0.0.1:54321/auth/v1/callback` redirect URI saved. Google reached the account selection and reconnection screens; final consent and application session are not yet verified.
-2. Sign in to NVIDIA Build, obtain an API Catalog key, and store it only in `.env.local`. Set `AI_PROVIDER=nvidia` and `EMBEDDING_PROVIDER=nvidia`, run the local worker to index a dataset, then verify a real NVIDIA chat and RAG run. The NVIDIA adapter and variable-dimension vector migration are implemented; typecheck and lint pass, but NVIDIA has not been called with a real key.
+2. NVIDIA AI/RAG is now verified; see the latest milestone below. Older notes describing a missing key or Ollama indexing failures are historical. Existing failed source index jobs have not been automatically requeued.
 3. Live source updates and acceptance/end-to-end testing are deferred at the user's request. Keep them unchecked rather than presenting demo checks as integration verification.
 
 The source was pushed to the private GitHub repository `karanbaghele/Gen-UI_2` on 2026-09-23. Git network transfers corrupted the initial large pack, so GitHub's authenticated file API published the initial tree. The local tree matched the fetched remote. The follow-up implementation commit `0f09496` pushed normally; the working tree was clean afterward. On 2026-09-23, the app and local Auth health endpoints returned HTTP 200. The browser showed the local test session, and a database check found no Google user yet, so real Google login remains unverified.
@@ -34,3 +34,15 @@ The in-app browser currently shows the local test session after returning to Gen
 On the 10:25 continuation, local GenUI and Auth health endpoints still returned HTTP 200; the auth database still contained zero Google users. The sign-in button's previous preflight generated an OAuth PKCE challenge and then immediately navigated to the same start route, generating another challenge. It now checks `/api/session` configuration without starting OAuth and navigates once. Typecheck and lint pass. No NVIDIA key was present in `.env.local`.
 
 At 17:41 Asia/Kolkata, Colima and both Node processes were stopped. Colima was restarted; the preserved `genui-postgres` and `genui-auth` containers resumed automatically. `npm run auth:proxy` and `npm run dev` were restarted, and the login and Auth health endpoints returned HTTP 200. The auth database still had zero Google users. The login preflight fix was pushed as commit `63b3e2a`.
+
+
+## Latest milestone: real NVIDIA AI and RAG (2026-09-24)
+A server-only NVIDIA API key is configured in ignored `.env.local` (mode 600); never print or commit it. Both providers select NVIDIA. Chat uses `nvidia/nemotron-3-super-120b-a12b`; embeddings use `nvidia/nemotron-3-embed-1b` with 2048 dimensions and distinct passage/query modes. Lightning repeatedly timed out, so the default changed to the verified Super model. The adapter now sends the required JSON Schema to NVIDIA; strict local validation and a single repair remain enforced.
+
+Verification used only a newly created fictional built-in sample, dataset `3df03896-9696-482a-8c83-3fa8ae501b4e`, under the explicit local fixture identity. Real embeddings were stored in local pgvector. Retrieval returned three chunks from schema/definition documents using `hybrid_vector`, with no fallback. Real generation created dashboard `b5d620b6-aa11-4d6a-ba86-b6ecae604c21` in 30.5 seconds with one successful validation repair. Four deterministic queries returned revenue 1,175,914.30, profit 476,244.30, twelve monthly rows, and three regional rows. The saved dashboard reloaded via HTTP 200.
+
+Real HTTP refinement returned NDJSON progress and a result, saved version 3 titled “Northstar AI Sales Overview”, and preserved queries, widgets, filters and layouts exactly. An earlier run completed but retained the title; the final repeated request and persisted result were checked explicitly. The initial verification harness incorrectly expected SSE; it was corrected to parse NDJSON. Do not treat provider completion alone as proof of the requested edit.
+
+App, Auth proxy and indexing-only worker were restarted in sessions 74236, 48182 and 20311. The worker completed the new sample indexing job. `GENUI_WORKER_INDEX_ONLY=true` prevents source refresh jobs while live updates remain deferred. Older failed source jobs were not automatically requeued or sent to NVIDIA. Recheck process health on resume; sessions may not survive host restarts.
+
+Typecheck and lint pass. Google sign-in remains unverified; no real Google session was used for the AI checks. Full acceptance/end-to-end tests and live updates remain deferred. NVIDIA inference is hosted, while application execution, storage, database and workers remain local. No deployment or public tunnel was created.
