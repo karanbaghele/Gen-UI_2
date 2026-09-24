@@ -1,7 +1,7 @@
 import { supabaseServer } from "@/lib/server/auth";
-import { localUrl } from "@/lib/server/security";
+import { serviceUrl } from "@/lib/server/security";
 export async function GET(request: Request) {
-  const app = localUrl(
+  const app = serviceUrl(
     process.env.APP_URL ?? "http://127.0.0.1:3000",
     "Application URL",
   );

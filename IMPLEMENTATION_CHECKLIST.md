@@ -1,6 +1,6 @@
 # GenUI implementation checklist
 
-Authoritative requirements: [product brief](docs/PRODUCT_BRIEF.md). Local-only; no deployment, public tunnels, or cloud infrastructure.
+Authoritative product requirements: [product brief](docs/PRODUCT_BRIEF.md). The user later authorized Vercel hosting with Supabase Auth/database; local development stays separate, and Git pushes are release actions.
 
 - [x] Inspect repository (empty starting directory) and installed tools.
 - [x] Schedule automatic continuation after current account reset.
@@ -20,6 +20,9 @@ Authoritative requirements: [product brief](docs/PRODUCT_BRIEF.md). Local-only; 
 - [x] Initial source published to private GitHub repository Gen-UI_2, with ignored local credentials excluded.
 - [ ] Local Google Auth service, Google callback setting, and real account sign-in verification.
 - [x] NVIDIA chat and passage/query embedding adapters; real generation, RAG and saved refinement verified on the fictional sample.
+- [x] Hosted Supabase GenUI project in Karan Works; schema applied and privileged function grants narrowed.
+- [ ] Vercel production secrets, scoped database login, Google provider and OAuth callbacks.
+- [ ] GitHub-connected Vercel production deployment and real hosted sign-in/AI check.
 - [ ] Source refresh, local event notification, measured latency.
 - [ ] Exports, library actions, settings, context inspector.
 - [ ] Security tests, end-to-end editor tests, visual QA, lint/typecheck/build.

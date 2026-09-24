@@ -286,7 +286,7 @@ export default function DataPage() {
                 </span>
                 <span className="badge">{current.fields.length} fields</span>
                 <span className="badge">
-                  Index: {detail.data?.indexingStatus ?? "Check local worker"}
+                  Index: {detail.data?.indexingStatus ?? "Pending"}
                 </span>
               </div>
               <div className="table-wrap">

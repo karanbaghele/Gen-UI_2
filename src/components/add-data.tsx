@@ -81,8 +81,9 @@ export function AddData({
     setBusy(true);
     setPreview(null);
     try {
-      if (file.size > 10 * 1024 * 1024)
-        throw new Error("Choose a CSV file smaller than 10 MB.");
+      const maxMb = process.env.NEXT_PUBLIC_HOSTED === "true" ? 4 : 10;
+      if (file.size > maxMb * 1024 * 1024)
+        throw new Error(`Choose a CSV file smaller than ${maxMb} MB.`);
       const buffer = await file.arrayBuffer();
       let text: string;
       try {
@@ -92,6 +93,13 @@ export function AddData({
           "This file is not valid UTF-8. Save it as a UTF-8 CSV and try again.",
         );
       }
+      if (
+        process.env.NEXT_PUBLIC_HOSTED === "true" &&
+        new Blob([JSON.stringify({ csv: text })]).size > 4 * 1024 * 1024
+      )
+        throw new Error(
+          "This CSV is too large to upload on the hosted app. Choose a smaller file.",
+        );
       setCsv(text);
       setName(file.name.replace(/\.[^.]+$/, ""));
       const result = await post<Preview | { preview: Preview }>(
@@ -109,6 +117,15 @@ export function AddData({
     setBusy(true);
     setError("");
     try {
+      if (
+        process.env.NEXT_PUBLIC_HOSTED === "true" &&
+        new Blob([JSON.stringify({ kind: "csv", name: name.trim(), csv })])
+          .size >
+          4 * 1024 * 1024
+      )
+        throw new Error(
+          "This CSV is too large to upload on the hosted app. Choose a smaller file.",
+        );
       const result = await post<{ dataset: Dataset }>("/api/datasets", {
         kind: "csv",
         name: name.trim(),
@@ -226,7 +243,10 @@ export function AddData({
                 aria-label="Choose CSV file"
                 onChange={(e) => void readFile(e.target.files?.[0])}
               />
-              <small>UTF-8 · CSV · Up to 10 MB</small>
+              <small>
+                UTF-8 · CSV · Up to{" "}
+                {process.env.NEXT_PUBLIC_HOSTED === "true" ? 4 : 10} MB
+              </small>
             </div>
           ) : (
             <>
@@ -464,7 +484,11 @@ function ConnectorSetup({
                 <code>.env.local</code>, then restart GenUI.
               </p>
               <p>
-                Authorized callback: <code>http://127.0.0.1:3000/auth/google-sheets/callback</code>
+                Authorized callback:{" "}
+                <code>
+                  {process.env.NEXT_PUBLIC_APP_URL ?? "http://127.0.0.1:3000"}
+                  /auth/google-sheets/callback
+                </code>
               </p>
             </div>
           )}
@@ -512,7 +536,10 @@ function ConnectorSetup({
             <option value="300">Every 5 minutes</option>
             <option value="900">Every 15 minutes</option>
           </select>
-          <small>Polling runs in the local worker while GenUI is running.</small>
+          <small>
+            Automatic polling requires a running worker. You can refresh a
+            source manually at any time.
+          </small>
         </label>
       )}
       {tables.length > 0 ? (
@@ -601,9 +628,9 @@ function ConnectorSetup({
             ? "Connecting…"
             : configured === false
               ? "Setup needed"
-            : kind === "google_sheets"
-              ? "Authorize and connect"
-              : "Test connection"}
+              : kind === "google_sheets"
+                ? "Authorize and connect"
+                : "Test connection"}
         </button>
       )}
       <ErrorNote message={error} />

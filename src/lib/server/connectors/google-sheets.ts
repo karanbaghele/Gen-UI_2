@@ -6,7 +6,7 @@ import type { SessionContext } from "../auth";
 import { withCredentials, withTenant } from "../db";
 import { getDataset, persistDataset, replaceDataset } from "../repository";
 import { scheduleSourceRefresh } from "../sync-jobs";
-import { decryptSecret, encryptSecret, HttpError, localUrl } from "../security";
+import { decryptSecret, encryptSecret, HttpError, serviceUrl } from "../security";
 
 type SheetConfig = {
   spreadsheetId: string;
@@ -49,7 +49,7 @@ function settings() {
       "Google Sheets access is not configured. Set GOOGLE_SHEETS_CLIENT_ID and GOOGLE_SHEETS_CLIENT_SECRET in .env.local, then restart GenUI.",
       "sheets_unconfigured",
     );
-  const app = localUrl(
+  const app = serviceUrl(
     process.env.APP_URL ?? "http://127.0.0.1:3000",
     "Application URL",
   );
@@ -60,7 +60,7 @@ function settings() {
   if (redirect.origin !== app.origin)
     throw new HttpError(
       503,
-      "The Google Sheets callback must use this local application's origin.",
+      "The Google Sheets callback must use this application's origin.",
       "sheets_callback_invalid",
     );
   return { clientId, clientSecret, redirectUri };

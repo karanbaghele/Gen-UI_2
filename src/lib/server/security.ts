@@ -43,10 +43,33 @@ export function localUrl(value: string | undefined, label: string): URL {
   return url;
 }
 
+export function serviceUrl(value: string | undefined, label: string): URL {
+  if (!value)
+    throw new HttpError(503, `${label} is not configured.`, "configuration_missing");
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new HttpError(503, `${label} has an invalid URL.`, "configuration_invalid");
+  }
+  if (
+    !["http:", "https:"].includes(url.protocol) ||
+    (!isLoopbackHost(url.hostname) && url.protocol !== "https:") ||
+    url.username ||
+    url.password
+  )
+    throw new HttpError(
+      503,
+      `${label} must use HTTPS outside localhost.`,
+      "configuration_invalid",
+    );
+  return url;
+}
+
 export function assertSameOrigin(request: Request) {
   if (["GET", "HEAD", "OPTIONS"].includes(request.method)) return;
   const origin = request.headers.get("origin");
-  const expected = localUrl(
+  const expected = serviceUrl(
     process.env.APP_URL ?? "http://127.0.0.1:3000",
     "Application URL",
   ).origin;

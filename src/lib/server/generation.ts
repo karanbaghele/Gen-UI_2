@@ -24,6 +24,7 @@ import {
   metadataRetrieval,
   normalizeRequest,
   retrieveContext,
+  indexDataset,
   type RetrievalResult,
 } from "./rag";
 import { withTenant } from "./db";
@@ -302,6 +303,12 @@ async function runGeneration(
   };
   try {
     emit("retrieving", "Finding relevant context");
+    if (mode !== "demo" && process.env.GENUI_ON_DEMAND_INDEXING === "true") {
+      for (const dataset of datasets) {
+        signal?.throwIfAborted();
+        await indexDataset(ctx, dataset.id, signal);
+      }
+    }
     retrieval =
       mode === "demo"
         ? metadataRetrieval(

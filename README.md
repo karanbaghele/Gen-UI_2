@@ -9,7 +9,7 @@ GenUI turns authorized structured data and a natural-language request into an ed
 3. Run `npm run db:reset`, then run `npm run dev` and `npm run worker` in separate terminals. Open `http://127.0.0.1:3000`.
 4. For local model-backed RAG, install Ollama, then run `ollama pull nomic-embed-text` and a JSON-capable chat model such as `ollama pull qwen2.5:7b`. Start Ollama only on its default loopback address.
 
-The application never deploys, provisions a hosted database, or creates a public tunnel. Google authentication and Google Sheets are external integrations; configured AI providers receive only the selected, authorized context for a request.
+The local installation stays on your machine. See [hosting status and setup](docs/HOSTING.md) for the separate Vercel and Supabase environment. Google authentication and Google Sheets are external integrations; configured AI providers receive only the selected, authorized context for a request.
 
 ## PostgreSQL sources
 

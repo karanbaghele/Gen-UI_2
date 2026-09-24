@@ -3,6 +3,8 @@ import { requireSession } from "@/lib/server/auth";
 import { body, route } from "@/lib/server/http";
 import { generateDashboard, generationStream } from "@/lib/server/generation";
 
+export const maxDuration = 300;
+
 const input = z.strictObject({
   datasetId: z.uuid(),
   prompt: z.string().trim().min(1).max(8_000),

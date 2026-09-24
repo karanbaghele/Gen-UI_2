@@ -5,7 +5,7 @@ import { getDb, withUser } from "./db";
 import {
   assertLocalTestAuth,
   HttpError,
-  localUrl,
+  serviceUrl,
   rateLimit,
 } from "./security";
 
@@ -17,10 +17,12 @@ export function configuration() {
   return {
     supabase: !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY),
     database: !!process.env.DATABASE_URL,
-    google: !!(
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID &&
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET
-    ),
+    google:
+      process.env.GOOGLE_SIGN_IN_ENABLED === "true" ||
+      !!(
+        process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID &&
+        process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET
+      ),
     sheets: !!(
       process.env.GOOGLE_SHEETS_CLIENT_ID &&
       process.env.GOOGLE_SHEETS_CLIENT_SECRET
@@ -34,12 +36,12 @@ export function configuration() {
   };
 }
 export async function supabaseServer() {
-  const url = localUrl(process.env.SUPABASE_URL, "Local Supabase");
+  const url = serviceUrl(process.env.SUPABASE_URL, "Supabase");
   const key = process.env.SUPABASE_ANON_KEY;
   if (!key)
     throw new HttpError(
       503,
-      "The local Supabase anonymous key is not configured.",
+      "The Supabase publishable key is not configured.",
       "configuration_missing",
     );
   const jar = await cookies();
@@ -47,7 +49,7 @@ export async function supabaseServer() {
     auth: { flowType: "pkce" },
     cookieOptions: {
       httpOnly: true,
-      secure: false,
+      secure: url.protocol === "https:",
       sameSite: "lax",
       path: "/",
     },
@@ -59,7 +61,7 @@ export async function supabaseServer() {
             ...options,
             httpOnly: true,
             sameSite: "lax",
-            secure: false,
+            secure: url.protocol === "https:",
             path: "/",
           });
       },

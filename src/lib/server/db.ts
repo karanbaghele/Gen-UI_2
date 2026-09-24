@@ -1,18 +1,27 @@
 import "server-only";
 import postgres from "postgres";
-import { localUrl } from "./security";
+import { HttpError, isLoopbackHost } from "./security";
 
 let connection: ReturnType<typeof postgres> | undefined;
 export type TenantSql = postgres.TransactionSql;
 
-/** The pool never leaves loopback. All request work must use withTenant/withUser. */
+/** All request work must use withTenant/withUser so RLS sees the signed-in user. */
 export function getDb() {
   if (!connection) {
-    const url = localUrl(process.env.DATABASE_URL, "Local database");
+    if (!process.env.DATABASE_URL)
+      throw new HttpError(503, "Database is not configured.", "configuration_missing");
+    let url: URL;
+    try {
+      url = new URL(process.env.DATABASE_URL);
+    } catch {
+      throw new HttpError(503, "Database URL is invalid.", "configuration_invalid");
+    }
     if (!["postgres:", "postgresql:"].includes(url.protocol))
       throw new Error("DATABASE_URL must use PostgreSQL");
+    const local = isLoopbackHost(url.hostname);
     connection = postgres(url.toString(), {
-      max: 8,
+      max: local ? 8 : 1,
+      ssl: local ? false : "require",
       idle_timeout: 20,
       connect_timeout: 5,
       prepare: false,

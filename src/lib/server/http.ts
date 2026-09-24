@@ -83,7 +83,7 @@ export function route(fn: (request: Request) => Promise<Response>) {
       ) {
         status = 503;
         message =
-          "The local database is unavailable. Start the local Supabase stack.";
+          "The database is unavailable. Check the Supabase connection.";
         code = "database_unavailable";
       }
       // Deliberately omit messages, SQL, credentials, prompts and dataset values from logs.

@@ -13,7 +13,7 @@ export const POST = route(async (request) => {
       csv: z
         .string()
         .min(1)
-        .max(10 * 1024 * 1024),
+        .max((process.env.VERCEL ? 4 : 10) * 1024 * 1024),
       name: z.string().min(1).max(120).optional(),
     }),
   );
