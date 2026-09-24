@@ -2,7 +2,7 @@
 
 GenUI's Next.js pages and API routes run together on Vercel. Supabase hosts Auth and PostgreSQL with pgvector. NVIDIA serves chat and embedding requests. The local Docker database, Auth proxy, and worker stay available for development and do not connect to the hosted project by default.
 
-The hosted Supabase project is **GenUI** in **Karan Works**, Mumbai region, reference `srfcsvtunrfbdzruoqof`. All three checked-in schema migrations were applied to it on 2026-09-24. Its 19 public tables have row-level security. The Vercel project is `gen-ui-2`, with production address `https://gen-ui-2-two.vercel.app`. It has not deployed yet: private secrets, the database login, GitHub integration and a real hosted login still need to be completed and checked.
+The hosted Supabase project is **GenUI** in **Karan Works**, Mumbai region, reference `srfcsvtunrfbdzruoqof`. All three checked-in schema migrations were applied to it on 2026-09-24. Its 19 public tables have row-level security. The Vercel project is `gen-ui-2`, with production address `https://gen-ui-2-two.vercel.app`, and is connected to the private GitHub repository. Private secrets, the database login and a real hosted login still need to be completed and checked.
 
 ## Deployment flow
 
