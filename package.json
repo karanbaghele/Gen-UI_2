@@ -37,7 +37,6 @@
   },
   "devDependencies": {
     "@playwright/test": "latest",
-    "@rolldown/binding-darwin-arm64": "^1.2.7",
     "@tailwindcss/postcss": "latest",
     "@types/node": "latest",
     "@types/papaparse": "latest",
