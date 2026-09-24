@@ -22,7 +22,8 @@ Authoritative product requirements: [product brief](docs/PRODUCT_BRIEF.md). The 
 - [x] NVIDIA chat and passage/query embedding adapters; real generation, RAG and saved refinement verified on the fictional sample.
 - [x] Hosted Supabase GenUI project in Karan Works; schema applied and privileged function grants narrowed.
 - [ ] Vercel production secrets, scoped database login, Google provider and OAuth callbacks.
-- [ ] GitHub-connected Vercel production deployment and real hosted sign-in/AI check.
+- [x] GitHub-connected Vercel production build; login page and OAuth initiation respond.
+- [ ] Real hosted Google session, database access, NVIDIA AI and RAG check.
 - [ ] Source refresh, local event notification, measured latency.
 - [ ] Exports, library actions, settings, context inspector.
 - [ ] Security tests, end-to-end editor tests, visual QA, lint/typecheck/build.
