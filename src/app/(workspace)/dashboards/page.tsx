@@ -99,7 +99,7 @@ export default function DashboardsPage() {
           <h1>A clearer picture.</h1>
           <p>Your questions, shaped into dashboards.</p>
         </div>
-        <Link className="button primary" href="/">
+        <Link className="button primary" href="/app">
           <Plus size={16} />
           New dashboard
         </Link>
@@ -143,7 +143,7 @@ export default function DashboardsPage() {
             }
           >
             {!search && (
-              <Link className="button primary" href="/">
+              <Link className="button primary" href="/app">
                 Create a dashboard
               </Link>
             )}

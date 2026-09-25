@@ -2,13 +2,15 @@
 
 GenUI's Next.js pages and API routes run together on Vercel. Supabase hosts Auth and PostgreSQL with pgvector. NVIDIA serves chat and embedding requests. The local Docker database, Auth proxy, and worker stay available for development and do not connect to the hosted project by default.
 
-The hosted Supabase project is **GenUI** in **Karan Works**, Mumbai region, reference `srfcsvtunrfbdzruoqof`. All three checked-in schema migrations were applied to it on 2026-09-24. Its 19 public tables have row-level security. The Vercel project is `gen-ui-2`, with production address `https://gen-ui-2-two.vercel.app`, and is connected to the private GitHub repository. Its production build is live, but private secrets, the database login and a real hosted login still need to be completed and checked.
+The public landing page is `/`. Its entry buttons open the protected workspace at `/app`; completed Google sign-in also returns to `/app`. Existing dashboard and data URLs stay under `/dashboards` and `/data`.
+
+The hosted Supabase project is **GenUI** in **Karan Works**, Mumbai region, reference `srfcsvtunrfbdzruoqof`. All three checked-in schema migrations were applied to it on 2026-09-24. Its 19 public tables have row-level security. The Vercel project is `gen-ui-2`, with production address `https://gen-ui-2-two.vercel.app`, and is connected to the private GitHub repository. Its production build is live, and the production secrets and dedicated database login are configured. A real hosted Google sign-in and authenticated app database flow still need user verification.
 
 ## Deployment flow
 
 The intended production source is `karanbaghele/Gen-UI_2` on `main`. Keep local changes uncommitted while developing. When a release is requested, commit and push to `main`; a Vercel project connected to that repository deploys the pushed revision. A local edit never deploys on its own. Supabase schema changes need their migration applied before the matching app revision goes live.
 
-Set these values in Vercel's **Production** environment. Keep all credential values out of Git and logs:
+These values are set in Vercel's **Production** environment. Keep all credential values out of Git and logs:
 
 - `APP_URL` and `NEXT_PUBLIC_APP_URL`: `https://gen-ui-2-two.vercel.app`.
 - `SUPABASE_URL`: `https://srfcsvtunrfbdzruoqof.supabase.co`.

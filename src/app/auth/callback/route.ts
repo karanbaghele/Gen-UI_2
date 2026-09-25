@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     try {
       const client = await supabaseServer();
       const { error } = await client.auth.exchangeCodeForSession(code);
-      if (!error) return Response.redirect(`${app.origin}/`, 303);
+      if (!error) return Response.redirect(`${app.origin}/app`, 303);
     } catch {
       /* A safe fixed message is shown by the login page. */
     }

@@ -178,7 +178,7 @@ export function Shell({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       <aside className={`sidebar ${mobileOpen ? "open" : ""}`}>
-        <Link href="/">
+        <Link href="/app">
           <Brand />
         </Link>
         <div className="workspace-label">
@@ -187,7 +187,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
         <nav aria-label="Main navigation">
           {[
-            { label: "Home", href: "/", icon: Home },
+            { label: "Home", href: "/app", icon: Home },
             { label: "Dashboards", href: "/dashboards", icon: LayoutDashboard },
             { label: "Data", href: "/data", icon: Database },
           ].map((item) => (
