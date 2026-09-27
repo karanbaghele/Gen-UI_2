@@ -25,6 +25,7 @@ Authoritative product requirements: [product brief](docs/PRODUCT_BRIEF.md). The 
 - [x] Vercel production secrets, scoped database login, Google provider and OAuth callbacks configured.
 - [x] GitHub-connected Vercel production build; login page and OAuth initiation respond.
 - [x] Public landing page at `/` with interactive sample dashboard, responsive layouts, and `/app` workspace entry.
+- [x] Dataset-specific home prompt suggestions based on selected CSV, Sheets, PostgreSQL, or sample metadata; suggestions never assume unavailable fields.
 - [ ] Real hosted Google session, authenticated app database flow, hosted dashboard generation and RAG check. The pooler login and NVIDIA chat/embedding APIs passed separate smoke checks; this is not an end-to-end app verification.
 - [ ] Source refresh, local event notification, measured latency.
 - [ ] Exports, library actions, settings, context inspector.

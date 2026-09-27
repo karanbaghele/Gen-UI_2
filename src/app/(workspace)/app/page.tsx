@@ -15,29 +15,12 @@ import {
 import { api } from "@/lib/client";
 import { readGenerationStream } from "@/lib/client-stream";
 import type { Dataset } from "@/lib/domain/schema";
+import { suggestDashboardPrompts } from "@/lib/domain/prompt-suggestions";
 import { AddData } from "@/components/add-data";
 import { ErrorNote } from "@/components/ui";
 import type { Session } from "@/components/shell";
-const examples = [
-  {
-    icon: TrendingUp,
-    label: "Get the big picture",
-    prompt:
-      "Build an executive sales dashboard. Show total revenue, profit, growth over time, regional performance, strongest products, and region and date filters.",
-  },
-  {
-    icon: ChartColumn,
-    label: "Find your strongest products",
-    prompt:
-      "Compare revenue by product and category. Show the best-performing products and a detailed sales table.",
-  },
-  {
-    icon: Users,
-    label: "Understand your customers",
-    prompt:
-      "Show total unique customers, revenue by region, and the top 20 customers by revenue.",
-  },
-];
+import styles from "./prompt-suggestions.module.css";
+const suggestionIcons = [TrendingUp, ChartColumn, Users];
 export default function HomePage() {
   const router = useRouter();
   const data = useQuery({
@@ -50,14 +33,18 @@ export default function HomePage() {
   });
   const [prompt, setPrompt] = useState("");
   const [datasetId, setDatasetId] = useState("");
+  const [suggestedFor, setSuggestedFor] = useState<string | null>(null);
   const [addData, setAddData] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [stages, setStages] = useState<string[]>([]);
   const [mode, setMode] = useState("");
   const abort = useRef<AbortController | null>(null);
+  const promptRef = useRef<HTMLTextAreaElement | null>(null);
   const datasets = data.data?.datasets ?? [];
-  const selected = datasetId || (datasets.length === 1 ? datasets[0].id : "");
+  const selectedDataset = datasets.find((dataset) => dataset.id === datasetId) ?? datasets[0];
+  const selected = selectedDataset?.id ?? "";
+  const suggestions = selectedDataset ? suggestDashboardPrompts(selectedDataset) : [];
   const config = session.data?.config;
   const effectiveMode =
     mode || (config?.nvidia ? "nvidia" : config?.ollama ? "ollama" : config?.gemini ? "gemini" : "demo");
@@ -108,10 +95,14 @@ export default function HomePage() {
           Describe your dashboard
         </label>
         <textarea
+          ref={promptRef}
           id="home-prompt"
           placeholder="Show me what’s driving our sales this quarter…"
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={(e) => {
+            setPrompt(e.target.value);
+            setSuggestedFor(null);
+          }}
           disabled={busy}
           onKeyDown={(e) => {
             if (
@@ -124,7 +115,7 @@ export default function HomePage() {
             }
           }}
         />
-        <div className="composer-footer">
+        <div className={`composer-footer ${styles.composerFooter}`}>
           <select
             className="dataset-select"
             aria-label="Select a dataset"
@@ -133,6 +124,10 @@ export default function HomePage() {
               if (e.target.value === "__add") {
                 setAddData(true);
                 return;
+              }
+              if (suggestedFor && suggestedFor !== e.target.value) {
+                setPrompt("");
+                setSuggestedFor(null);
               }
               setDatasetId(e.target.value);
             }}
@@ -225,19 +220,39 @@ export default function HomePage() {
       )}
       {!busy && (
         <>
-          <div className="examples-label">A few places to start</div>
-          <div className="example-grid">
-            {examples.map((example) => (
-              <button
-                className="example-card"
-                key={example.label}
-                onClick={() => setPrompt(example.prompt)}
-              >
-                <example.icon size={18} strokeWidth={1.6} />
-                <span>{example.label}</span>
-              </button>
-            ))}
-          </div>
+          {selectedDataset ? (
+            <section className={styles.section} aria-label="Suggested prompts">
+              <div className={styles.heading}>
+                <div>
+                  <div className="examples-label">Ideas from your data</div>
+                  <p>Based on the columns in <strong>{selectedDataset.name}</strong></p>
+                </div>
+                <span className={styles.count}>{suggestions.length} suggestions</span>
+              </div>
+              <div className={styles.grid}>
+                {suggestions.map((suggestion, index) => {
+                  const Icon = suggestionIcons[index];
+                  return (
+                    <button
+                      className={styles.card}
+                      key={suggestion.id}
+                      onClick={() => {
+                        setPrompt(suggestion.prompt);
+                        setSuggestedFor(selected);
+                        promptRef.current?.focus();
+                      }}
+                    >
+                      <Icon size={18} strokeWidth={1.7} aria-hidden="true" />
+                      <span className={styles.cardTitle}>{suggestion.label}</span>
+                      <span className={styles.preview}>{suggestion.preview}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ) : (
+            <p className={styles.empty}>Add or select data to see suggested prompts.</p>
+          )}
           <div className="home-footnote">
             <ShieldCheck size={12} />
             Your numbers come from your data. Every chart has a source.
@@ -247,7 +262,13 @@ export default function HomePage() {
       <AddData
         open={addData}
         onOpenChange={setAddData}
-        onAdded={(dataset) => setDatasetId(dataset.id)}
+        onAdded={(dataset) => {
+          if (suggestedFor) {
+            setPrompt("");
+            setSuggestedFor(null);
+          }
+          setDatasetId(dataset.id);
+        }}
       />
     </div>
   );
