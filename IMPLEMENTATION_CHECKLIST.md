@@ -21,6 +21,7 @@ Authoritative product requirements: [product brief](docs/PRODUCT_BRIEF.md). The 
 - [ ] Local Google Auth service, Google callback setting, and real account sign-in verification.
 - [x] NVIDIA chat and passage/query embedding adapters; real generation, RAG and saved refinement verified on the fictional sample.
 - [x] Hosted Supabase GenUI project in Karan Works; schema applied and privileged function grants narrowed.
+- [x] Read-only, secret-protected hosted database health route; three daily Vercel Cron schedules to reduce free-project pause risk.
 - [x] Vercel production secrets, scoped database login, Google provider and OAuth callbacks configured.
 - [x] GitHub-connected Vercel production build; login page and OAuth initiation respond.
 - [x] Public landing page at `/` with interactive sample dashboard, responsive layouts, and `/app` workspace entry.
