@@ -24,7 +24,8 @@ import {
   LockKeyhole,
 } from "lucide-react";
 import { api, ApiError, post } from "@/lib/client";
-import { Menu, MenuItem, MenuSeparator, Modal, Loading, ErrorNote } from "./ui";
+import { Menu, MenuItem, MenuSeparator, Modal, ErrorNote } from "./ui";
+import { BirdLoading } from "./bird-loader";
 export type Session = {
   user: { id: string; name: string; email: string; avatarUrl?: string } | null;
   workspace: { id: string; name: string; role: string } | null;
@@ -145,7 +146,7 @@ export function Shell({ children }: { children: ReactNode }) {
     }
   };
   if (session.isPending || (session.data && !session.data.user))
-    return <Loading />;
+    return <BirdLoading />;
   if (
     session.error ||
     !session.data ||

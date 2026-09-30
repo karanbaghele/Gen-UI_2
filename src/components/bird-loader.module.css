@@ -1,0 +1,150 @@
+/* Bird construction and flight motion adapted from Uiverse.io by preet_7613. */
+.loading {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  overflow: hidden;
+  color: var(--secondary);
+}
+
+.scene {
+  width: min(460px, 100%);
+  height: 250px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--selection) 68%, transparent), transparent 67%);
+}
+
+.sky {
+  perspective: 400px;
+  filter: drop-shadow(0 80px 10px rgba(0, 0, 0, .12));
+}
+
+.sky div { transform-style: preserve-3d; }
+.bird { animation: fly 10s linear infinite; }
+
+.wind {
+  position: absolute;
+  left: 50%;
+  width: 4px;
+  height: 200px;
+  margin-left: -2px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.wind::before {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 300px;
+  background: rgba(100, 200, 255, .3);
+  border-radius: 999px;
+  transform: translateY(-300px);
+  animation: wind linear infinite;
+}
+
+.wind:nth-child(1) { transform: translate3d(-189px, -89px, -2px) rotateY(90deg); }
+.wind:nth-child(1)::before { animation-duration: 2627ms; animation-delay: 2771ms; }
+.wind:nth-child(2) { transform: translate3d(-58px, -129px, -80px) rotateY(90deg); }
+.wind:nth-child(2)::before { animation-duration: 2252ms; animation-delay: 3754ms; }
+.wind:nth-child(3) { transform: translate3d(-17px, 123px, 68px) rotateY(90deg); }
+.wind:nth-child(3)::before { animation-duration: 1401ms; animation-delay: 1423ms; }
+.wind:nth-child(4) { transform: translate3d(28px, 41px, -9px) rotateY(90deg); }
+.wind:nth-child(4)::before { animation-duration: 1922ms; animation-delay: 2218ms; }
+.wind:nth-child(5) { transform: translate3d(144px, -91px, -87px) rotateY(90deg); }
+.wind:nth-child(5)::before { animation-duration: 2054ms; animation-delay: 4654ms; }
+.wind:nth-child(6) { transform: translate3d(-163px, -29px, 0) rotateY(90deg); }
+.wind:nth-child(6)::before { animation-duration: 2231ms; animation-delay: 3433ms; }
+.wind:nth-child(7) { transform: translate3d(4px, -10px, -54px) rotateY(90deg); }
+.wind:nth-child(7)::before { animation-duration: 2403ms; animation-delay: 1893ms; }
+.wind:nth-child(8) { transform: translate3d(149px, -1px, -5px) rotateY(90deg); }
+.wind:nth-child(8)::before { animation-duration: 1235ms; animation-delay: 1648ms; }
+.wind:nth-child(9) { transform: translate3d(7px, -15px, 81px) rotateY(90deg); }
+.wind:nth-child(9)::before { animation-duration: 1299ms; animation-delay: 2924ms; }
+.wind:nth-child(10) { transform: translate3d(103px, 149px, 51px) rotateY(90deg); }
+.wind:nth-child(10)::before { animation-duration: 1216ms; animation-delay: 1183ms; }
+
+.body { position: relative; width: 30px; height: 40px; background: rgb(126, 109, 201); }
+.head {
+  position: absolute;
+  top: -30px;
+  border-right: 15px solid transparent;
+  border-bottom: 30px solid rgb(165, 105, 241);
+  border-left: 15px solid transparent;
+  transform-origin: 50% 100%;
+  transform: rotateX(-20deg);
+}
+.wingLeft {
+  position: absolute;
+  left: -30px;
+  height: 30px;
+  border-right: 30px solid rgb(149, 147, 221);
+  border-bottom: 10px solid transparent;
+  transform-origin: 100% 0;
+  animation: wingLeft 1s cubic-bezier(.36, .1, .16, 1) infinite alternate;
+}
+.wingLeftTop {
+  position: absolute;
+  left: -30px;
+  border-right: 30px solid rgb(129, 133, 229);
+  border-bottom: 30px solid transparent;
+  transform-origin: 100% 0;
+  animation: wingLeft 1s cubic-bezier(.545, .08, .52, .975) infinite alternate;
+}
+.wingRight {
+  position: absolute;
+  left: 30px;
+  height: 30px;
+  border-left: 30px solid rgb(121, 164, 239);
+  border-bottom: 10px solid transparent;
+  transform-origin: 0 0;
+  animation: wingRight 1s cubic-bezier(.36, .1, .16, 1) infinite alternate;
+}
+.wingRightTop {
+  position: absolute;
+  border-left: 30px solid rgb(130, 138, 241);
+  border-bottom: 30px solid transparent;
+  transform-origin: 0 0;
+  animation: wingRight 1s cubic-bezier(.545, .08, .52, .975) infinite alternate;
+}
+.tailLeft {
+  position: absolute;
+  top: 40px;
+  border-right: 30px solid transparent;
+  border-top: 40px solid rgb(119, 170, 244);
+  transform-origin: 50% 0;
+  transform: rotateX(-20deg);
+}
+.tailRight {
+  position: absolute;
+  top: 40px;
+  border-left: 30px solid transparent;
+  border-top: 40px solid rgb(194, 115, 248);
+  transform-origin: 50% 0;
+  transform: rotateX(-20deg);
+}
+.label { font-size: 13px; }
+
+@keyframes fly {
+  from { transform: rotateX(-120deg) rotateZ(0deg) rotateX(10deg); }
+  to { transform: rotateX(-120deg) rotateZ(360deg) rotateX(10deg); }
+}
+@keyframes wingLeft { from { transform: rotateY(-40deg); } to { transform: rotateY(40deg); } }
+@keyframes wingRight { from { transform: rotateY(40deg); } to { transform: rotateY(-40deg); } }
+@keyframes wind { from { transform: translateY(-300px); } to { transform: translateY(200px); } }
+
+@media (max-width: 480px) {
+  .sky { transform: scale(.75); }
+  .scene { height: 210px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bird, .wingLeft, .wingLeftTop, .wingRight, .wingRightTop, .wind::before { animation: none; }
+  .bird { transform: rotateX(-120deg) rotateX(10deg); }
+  .wind { display: none; }
+}
