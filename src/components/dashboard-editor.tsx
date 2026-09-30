@@ -64,13 +64,35 @@ import { Menu, MenuItem, Modal, ErrorNote, Loading } from "./ui";
 import type { Session } from "./shell";
 const Grid = WidthProvider(Responsive);
 type Layout = RglLayout[number];
-const colors = [
-  "var(--forest)",
-  "var(--slate)",
-  "var(--ochre)",
-  "var(--terracotta)",
-  "var(--sage)",
-  "var(--gray)",
+const seriesColors = [
+  "var(--chart-orange)",
+  "var(--chart-cyan)",
+  "var(--chart-lime)",
+  "var(--chart-amber)",
+  "var(--chart-magenta)",
+  "var(--chart-violet)",
+  "var(--chart-teal)",
+  "var(--chart-red)",
+];
+const categoryColors = [
+  "var(--chart-amber)",
+  "var(--chart-orange)",
+  "var(--chart-red)",
+  "var(--chart-magenta)",
+  "var(--chart-violet)",
+  "var(--chart-cyan)",
+  "var(--chart-lime)",
+  "var(--chart-teal)",
+];
+const sliceColors = [
+  "var(--chart-orange)",
+  "var(--chart-red)",
+  "var(--chart-lime)",
+  "var(--chart-cyan)",
+  "var(--chart-amber)",
+  "var(--chart-magenta)",
+  "var(--chart-teal)",
+  "var(--chart-violet)",
 ];
 type DashboardRecord = {
   id: string;
@@ -270,7 +292,7 @@ function Chart({
             paddingAngle={2}
           >
             {data.map((_, index) => (
-              <Cell key={index} fill={colors[index % colors.length]} />
+              <Cell key={index} fill={sliceColors[index % sliceColors.length]} />
             ))}
           </Pie>
           <Tooltip
@@ -303,7 +325,12 @@ function Chart({
             tick={{ fontSize: 10, fill: "var(--secondary)" }}
           />
           <Tooltip cursor={{ strokeDasharray: "3 3" }} />
-          <Scatter data={data} fill="var(--forest)" />
+          <Scatter data={data} fill={seriesColors[0]}>
+            {Boolean(config.nameKey) &&
+              data.map((_, index) => (
+                <Cell key={index} fill={categoryColors[index % categoryColors.length]} />
+              ))}
+          </Scatter>
         </ScatterChart>
       </ResponsiveContainer>
     );
@@ -388,10 +415,15 @@ function Chart({
               <Bar
                 key={key}
                 dataKey={key}
-                fill={colors[index % colors.length]}
+                fill={seriesColors[index % seriesColors.length]}
                 radius={[0, 3, 3, 0]}
                 stackId={config.stacked ? "value" : undefined}
-              />
+              >
+                {yKeys.length === 1 &&
+                  data.map((_, rowIndex) => (
+                    <Cell key={rowIndex} fill={categoryColors[rowIndex % categoryColors.length]} />
+                  ))}
+              </Bar>
             ))}
           </BarChart>
         </ResponsiveContainer>
@@ -403,10 +435,15 @@ function Chart({
               <Bar
                 key={key}
                 dataKey={key}
-                fill={colors[index % colors.length]}
+                fill={seriesColors[index % seriesColors.length]}
                 radius={[3, 3, 0, 0]}
                 stackId={config.stacked ? "value" : undefined}
-              />
+              >
+                {yKeys.length === 1 &&
+                  data.map((_, rowIndex) => (
+                    <Cell key={rowIndex} fill={categoryColors[rowIndex % categoryColors.length]} />
+                  ))}
+              </Bar>
             ))}
           </BarChart>
         </ResponsiveContainer>
@@ -415,15 +452,30 @@ function Chart({
       return (
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
+            <defs>
+              {yKeys.map((key, index) => (
+                <linearGradient
+                  key={key}
+                  id={`area-${widget.id}-${index}`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="0%" stopColor={seriesColors[index % seriesColors.length]} stopOpacity={0.38} />
+                  <stop offset="100%" stopColor={seriesColors[index % seriesColors.length]} stopOpacity={0.02} />
+                </linearGradient>
+              ))}
+            </defs>
             {axes}
             {yKeys.map((key, index) => (
               <Area
                 key={key}
                 type="monotone"
                 dataKey={key}
-                stroke={colors[index % colors.length]}
-                fill={colors[index % colors.length]}
-                fillOpacity={0.2}
+                stroke={seriesColors[index % seriesColors.length]}
+                strokeWidth={2.5}
+                fill={`url(#area-${widget.id}-${index})`}
                 stackId={config.stacked ? "value" : undefined}
               />
             ))}
@@ -439,9 +491,10 @@ function Chart({
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={colors[index % colors.length]}
-              strokeWidth={2}
+              stroke={seriesColors[index % seriesColors.length]}
+              strokeWidth={2.5}
               dot={false}
+              activeDot={{ r: 4, stroke: "var(--surface)", strokeWidth: 2 }}
             />
           ))}
         </LineChart>
